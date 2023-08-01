@@ -28,3 +28,8 @@ helloEfiApplication.so: $(OBJS)
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
 		-j .dynsym  -j .rel -j .rela -j .reloc \
 		--target=efi-app-$(ARCH) $^ $@
+
+clean:
+	rm -f *.o
+	rm -f *.so
+	rm -f *.efi
