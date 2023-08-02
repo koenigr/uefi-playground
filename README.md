@@ -1,5 +1,10 @@
 # HelloEfi
 
+HINTS:
+If you are using gnu-efi, use uefi_call_wrapper() to call UEFI functions.
+
+Check the bootboot project
+
 TODO:
 Analyze difference between helloEfiApplication and helloEfiBoot
 

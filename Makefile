@@ -43,7 +43,8 @@ run: all
 
 	cp helloEfiApplication.efi hda-contents/
 	cp helloEfiBoot.efi hda-contents/
-	#cp memtest.efi hda-contents/EFI/boot/BOOT_X64.efi
+
+	#cp helloEfiApplication.efi hda-contents/EFI/boot/BOOT_X64.efi
 
 	qemu-system-x86_64 -bios OVMF.fd \
 	-hda fat:rw:hda-contents -net none \
