@@ -1,7 +1,7 @@
 ARCH            = $(shell uname -m | sed s,i[3456789]86,ia32,)
 
-OBJS            = helloEfiApplication.o
-TARGET          = helloEfiApplication.efi
+OBJS            = helloEfiApplication.o helloEfiBoot.o
+TARGET          = helloEfiApplication.efi helloEfiBoot.efi
 
 EFIINC          = /usr/include/efi
 EFIINCS         = -I$(EFIINC) -I$(EFIINC)/$(ARCH) -I$(EFIINC)/protocol
@@ -22,7 +22,10 @@ LDFLAGS         = -nostdlib -znocombreloc -T $(EFI_LDS) -shared \
 all: $(TARGET)
 
 helloEfiApplication.so: $(OBJS)
-	ld $(LDFLAGS) $(OBJS) -o $@ -lefi -lgnuefi
+	ld $(LDFLAGS) helloEfiApplication.o -o $@ -lefi -lgnuefi
+
+helloEfiBoot.so: $(OBJS)
+	ld $(LDFLAGS) helloEfiBoot.o -o $@ -lefi -lgnuefi
 
 %.efi: %.so
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
@@ -33,3 +36,16 @@ clean:
 	rm -f *.o
 	rm -f *.so
 	rm -f *.efi
+	rm -f hda-contents/*.efi
+
+run: all
+	mkdir -p hda-contents/EFI/boot
+
+	cp helloEfiApplication.efi hda-contents/
+	cp helloEfiBoot.efi hda-contents/
+	#cp memtest.efi hda-contents/EFI/boot/BOOT_X64.efi
+
+	qemu-system-x86_64 -bios OVMF.fd \
+	-hda fat:rw:hda-contents -net none \
+	-drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
+	-drive if=pflash,format=raw,file=OVMF_VARS.fd
