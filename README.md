@@ -1,15 +1,27 @@
 # HelloEfi
 
-HINTS:
-If you are using gnu-efi, use uefi_call_wrapper() to call UEFI functions.
+Minimal UEFI application written in C,
+bootable in QEMU using OVMF firmware.
 
-Check the bootboot project
+This project explores:
+- UEFI applications
+- low-level boot environments
+- firmware interfaces
+- QEMU-based system emulation
 
-TODO:
-Analyze difference between helloEfiApplication and helloEfiBoot
 
-Analyze difference between helloEfiBoot and MemtestBoot
 
-How to get from helloEfiBoot to helloEfiApplication?
+# Screenshot
+Bootscreen in QEMU
 
-How to get from MemtestBoot to MemtestApplication?
+
+# Architektur
+Host Linux
+	|
+Build EFI Binary
+	|
+QEMU + OVMF
+	|
+UEFI Application
+
+# Build Instructions

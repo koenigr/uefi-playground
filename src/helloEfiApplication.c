@@ -3,7 +3,7 @@
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
-	Print(L"Hello Efi Application!\n");
+	Print(L"HelloEfi Application!\n");
 
 	return EFI_SUCCESS;
 }
