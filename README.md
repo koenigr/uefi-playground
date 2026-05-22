@@ -9,20 +9,24 @@ This project explores:
 - firmware interfaces
 - QEMU-based system emulation
 
+Main goal is to see differences between a simple Application inside UEFI and a bootable Executable.
 
+# Explanation Difference between Application and Bootable
 
 # Screenshot
 Bootscreen in QEMU
 
+![UEFI Boot in QEMU showing HelloEfi output](assets/Running.jpg)
+
 
 # Architektur
-Host Linux
-	|
-Build EFI Binary
-	|
-QEMU + OVMF
-	|
-UEFI Application
+Host Linux  
+	|  
+Build EFI Binary  
+	|  
+QEMU + OVMF  
+	|  
+UEFI Application  
 
 # Dependencies
 
@@ -32,4 +36,9 @@ sudo apt install ovmf qemu-system-x86 gnu-efi
 ```
 
 # Build Instructions
+```bash
+make run
+```
+
+# UEFI Interactive Shell - commands
 

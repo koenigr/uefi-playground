@@ -1,6 +1,7 @@
 ARCH            = $(shell uname -m | sed s,i[3456789]86,ia32,)
 
-OBJS            = build/helloEfiApplication.o build/helloEfiBoot.o
+APP_OBJS        = build/helloEfiApplication.o
+BOOT_OBJS				= build/helloEfiBoot.o
 TARGET          = build/helloEfiApplication.efi build/helloEfiBoot.efi
 
 EFIINC          = /usr/include/efi
@@ -19,15 +20,24 @@ endif
 LDFLAGS         = -nostdlib -znocombreloc -T $(EFI_LDS) -shared \
 		  -Bsymbolic -L $(EFILIB) -L $(LIB) $(EFI_CRT_OBJS) 
 
+OVMF_CODE				= /usr/share/OVMF/OVMF_CODE.fd
+OVMF_VARS				= firmware/OVMF_VARS.fd
+
+
+
 all: $(TARGET)
 
-helloEfiApplication.so: $(OBJS)
-	ld $(LDFLAGS) helloEfiApplication.o -o $@ -lefi -lgnuefi
+build/%.o: src/%.c
+	mkdir -p build
+	$(CC) $(CFLAGS) -c $< -o $@
 
-helloEfiBoot.so: $(OBJS)
-	ld $(LDFLAGS) helloEfiBoot.o -o $@ -lefi -lgnuefi
+build/helloEfiApplication.so: $(APP_OBJS)
+	ld $(LDFLAGS) $(APP_OBJS) -o $@ -lefi -lgnuefi
 
-%.efi: %.so
+build/helloEfiBoot.so: $(BOOT_OBJS)
+	ld $(LDFLAGS) $(BOOT_OBJS) -o $@ -lefi -lgnuefi
+
+build/%.efi: build/%.so
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
 		-j .dynsym  -j .rel -j .rela -j .reloc \
 		--target=efi-app-$(ARCH) $^ $@
@@ -41,12 +51,12 @@ clean:
 run: all
 	mkdir -p hda-contents/EFI/boot
 
-	cp helloEfiApplication.efi hda-contents/
-	cp helloEfiBoot.efi hda-contents/
+	cp build/helloEfiApplication.efi hda-contents/
+	cp build/helloEfiBoot.efi hda-contents/
 
 	#cp helloEfiApplication.efi hda-contents/EFI/boot/BOOT_X64.efi
 
 	qemu-system-x86_64 -bios OVMF.fd \
 	-hda fat:rw:hda-contents -net none \
-	-drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
-	-drive if=pflash,format=raw,file=OVMF_VARS.fd
+	-drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
+	-drive if=pflash,format=raw,file=$(OVMF_VARS)
