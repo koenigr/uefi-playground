@@ -16,13 +16,13 @@ Bootscreen in QEMU
 
 
 # Architektur
-Host Linux
-	|
-Build EFI Binary
-	|
-QEMU + OVMF
-	|
-UEFI Application
+Host Linux  
+	|  
+Build EFI Binary  
+	|  
+QEMU + OVMF  
+	|  
+UEFI Application  
 
 # Dependencies
 
