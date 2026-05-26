@@ -48,3 +48,4 @@ Size : 2 MB
 - Sorting/Grouping of related areas
 - colored output
 - get sizes: size = pages * 4096
+
