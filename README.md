@@ -29,14 +29,8 @@ Bootscreen in QEMU
 ![UEFI Boot in QEMU showing HelloEfi output](assets/Running.jpg)
 
 
-# Architektur
-Host Linux  
-	|  
-Build EFI Binary  
-	|  
-QEMU + OVMF  
-	|  
-UEFI Application  
+# Architecture
+Host Linux  ->  Build EFI Binary  ->  QEMU + OVMF  ->  UEFI Application  
 
 # Dependencies
 
@@ -54,9 +48,3 @@ make run
 Switch HD: ```fs0:```
 List files: ```ls```
 To leave shell: ```exit```
-
-
-# Applications
-## Hello
-Just a template how to create an application
-
