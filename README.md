@@ -11,6 +11,13 @@ This project explores:
 
 Main goal is to see differences between a simple Application inside UEFI and a bootable Executable.
 
+# Resources/ Documentation
+
+https://uefi.org
+https://wiki.osdev.org/UEFI
+https://sourceforge.net/projects/gnu-efi/
+
+
 # Explanation Difference between Application and Bootable
 
 # Screenshot
