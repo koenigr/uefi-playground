@@ -13,11 +13,11 @@ Main goal is to see differences between a simple Application inside UEFI and a b
 
 # Resources/ Documentation
 
-https://uefi.org
-https://wiki.osdev.org/UEFI
-https://sourceforge.net/projects/gnu-efi/
+https://uefi.org  
+https://wiki.osdev.org/UEFI  
+https://sourceforge.net/projects/gnu-efi/  
 
-Main Documentation:  
+## UEFI 2.11 Specification
 https://uefi.org/sites/default/files/resources/UEFI_Spec_Final_2.11.pdf
 
 
