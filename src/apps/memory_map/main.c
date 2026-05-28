@@ -30,7 +30,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	volatile int x = 0;
 	x++;
 
-	Status = SystemTable->BootServices->GetMemoryMap(
+	Status = uefi_call_wrapper(
+		SystemTable->BootServices->GetMemoryMap,
+		5,
 		&MemoryMapSize,
 		NULL,
 		&MapKey,
@@ -47,47 +49,54 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		Print(L"GetMemoryMap successful\n");
 	}
 
-	// Print(L"MemoryMapSize: %d\n", MemoryMapSize);
+	Print(L"MemoryMapSize before AllocatePool: %lu\n", MemoryMapSize);
+	Print(L"Status after GetMemoryMap: %r\n", Status);
 
-	// Status = SystemTable->BootServices->AllocatePool(
-	// 	EfiLoaderData,
-	// 	MemoryMapSize,
-	// 	(void**)&MemoryMap
-	// );
+	MemoryMapSize += 2 * DescriptorSize;
 
-	// if (EFI_ERROR(Status)) {
-	// 	Print(L"AllocatePool failed: %r\n", Status);
-	// 	return Status;
-	// }
+	Status = uefi_call_wrapper(
+		SystemTable->BootServices->AllocatePool,
+		3,
+		EfiLoaderData,
+		MemoryMapSize,
+		(void**)&MemoryMap
+	);
 
-	// Status = SystemTable->BootServices->GetMemoryMap(
-	// 	&MemoryMapSize,
-	// 	MemoryMap,
-	// 	&MapKey,
-	// 	&DescriptorSize,
-	// 	&DescriptorVersion
-	// );
+	if (EFI_ERROR(Status)) {
+		Print(L"AllocatePool failed: %r\n", Status);
+		return Status;
+	} else {
+		Print(L"AllocatePool successful.\n");
+	}
 
-	// Print(L"MemoryMapSize: %d\n", MemoryMapSize);
+	Status = uefi_call_wrapper(
+		SystemTable->BootServices->AllocatePool,
+		3,
+		EfiLoaderData,
+		MemoryMapSize,
+		(void**)&MemoryMap
+	);
 
-	// if (DescriptorSize == 0) {
-    // 	Print(L"DescriptorSize is 0!\n");
-    // 	return EFI_ABORTED;
-	// }
+	Print(L"MemoryMapSize: %d\n", MemoryMapSize);
 
-	// for (
-    // 	EFI_MEMORY_DESCRIPTOR *Desc = MemoryMap;
-    // 	(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
-    // 	Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)
-	// ) {
-	// 	Print(L"Type: %d Pages: %lu\n", Desc->Type, Desc->NumberOfPages);
-	// }
+	if (DescriptorSize == 0) {
+    	Print(L"DescriptorSize is 0!\n");
+    	return EFI_ABORTED;
+	}
 
-	// UINTN Count = MemoryMapSize / DescriptorSize;
+	for (
+		EFI_MEMORY_DESCRIPTOR *Desc = MemoryMap;
+		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
+		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)
+	) {
+		Print(L"Type: %d Pages: %lu\n", Desc->Type, Desc->NumberOfPages);
+	}
 
-	// Print(L"MemoryMapSize: %lx\n", MemoryMapSize);
-	// Print(L"DescriptorSize: %d\n", DescriptorSize);
-	// Print(L"MapKey: %d\n", MapKey);
+	UINTN Count = MemoryMapSize / DescriptorSize;
+
+	Print(L"MemoryMapSize: %lx\n", MemoryMapSize);
+	Print(L"DescriptorSize: %d\n", DescriptorSize);
+	Print(L"MapKey: %d\n", MapKey);
 
 	return EFI_SUCCESS;
 }
