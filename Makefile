@@ -58,6 +58,6 @@ run: all
 	#cp helloEfiApplication.efi hda-contents/EFI/boot/BOOT_X64.efi
 
 	qemu-system-x86_64 -bios OVMF.fd \
-	-hda fat:rw:hda-contents -net none \
+	-hda fat:rw:hda-contents -net none -serial stdio \
 	-drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
 	-drive if=pflash,format=raw,file=$(OVMF_VARS)

@@ -1,7 +1,29 @@
 #include <efi.h>
 #include <efilib.h>
 
-// UINTN = Pointer-sized unsigned int
+/*
+ * UINTN = Pointer-sized unsigned int
+ */
+
+CHAR16* MemoryTypeToStr(UINT32 Type) {
+    switch (Type) {
+        case EfiReservedMemoryType:        return L"Reserved";
+        case EfiLoaderCode:                return L"LoaderCode";
+        case EfiLoaderData:                return L"LoaderData";
+        case EfiBootServicesCode:          return L"BootServicesCode";
+        case EfiBootServicesData:          return L"BootServicesData";
+        case EfiRuntimeServicesCode:       return L"RuntimeServicesCode";
+        case EfiRuntimeServicesData:       return L"RuntimeServicesData";
+        case EfiConventionalMemory:        return L"Conventional";
+        case EfiUnusableMemory:            return L"Unusable";
+        case EfiACPIReclaimMemory:         return L"ACPIReclaim";
+        case EfiACPIMemoryNVS:             return L"ACPINVS";
+        case EfiMemoryMappedIO:            return L"MMIO";
+        case EfiMemoryMappedIOPortSpace:   return L"MMIOPort";
+        case EfiPalCode:                   return L"PalCode";
+        default:                           return L"Unknown";
+    }
+}
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
@@ -22,7 +44,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	UINTN MapKey = 0;
 	UINTN DescriptorSize = 0;
 	UINT32 DescriptorVersion = 0;
-	UINT32 _pad = 0;
 	EFI_STATUS Status;
 
 	Print(L"Declaration of variables done\n");
@@ -70,12 +91,15 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	}
 
 	Status = uefi_call_wrapper(
-		SystemTable->BootServices->AllocatePool,
-		3,
-		EfiLoaderData,
-		MemoryMapSize,
-		(void**)&MemoryMap
+		SystemTable->BootServices->GetMemoryMap,
+		5,
+		&MemoryMapSize,
+		MemoryMap,
+		&MapKey,
+		&DescriptorSize,
+		&DescriptorVersion
 	);
+
 
 	Print(L"MemoryMapSize: %d\n", MemoryMapSize);
 
@@ -89,7 +113,14 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
 		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)
 	) {
-		Print(L"Type: %d Pages: %lu\n", Desc->Type, Desc->NumberOfPages);
+		UINT64 SizeBytes = Desc->NumberOfPages * 4096;
+		UINT64 SizeMB = SizeBytes / (1024 * 1024);
+
+		Print(L"Type: %s\n", MemoryTypeToStr(Desc->Type));
+		Print(L"Start: 0x%lx\n", Desc->PhysicalStart);
+		Print(L"Pages: %lu\n", Desc->NumberOfPages);
+		Print(L"Size: %lu MB\n", SizeMB);
+		Print(L"--------------------------------\n");
 	}
 
 	UINTN Count = MemoryMapSize / DescriptorSize;
