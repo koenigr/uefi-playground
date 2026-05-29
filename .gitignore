@@ -1,6 +1,5 @@
 build/
 hda-contents/
-firmware/
 
 # Prerequisites
 *.d
