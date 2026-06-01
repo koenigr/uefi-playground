@@ -25,6 +25,24 @@ CHAR16* MemoryTypeToStr(UINT32 Type) {
     }
 }
 
+void PrintGroup(UINT32 Type, EFI_PHYSICAL_ADDRESS PhysicalStart, UINT64 NumberOfPages) {
+	UINT64 SizeBytes = (UINT64) NumberOfPages * 4096;
+	UINT64 SizeKB = SizeBytes / 1024;
+	UINT64 SizeMB = SizeKB / 1024;
+
+	Print(L"Type: %s\n", MemoryTypeToStr(Type));
+	Print(L"Start: 0x%lx\n", PhysicalStart);
+	Print(L"Pages: %lu\n", NumberOfPages);
+	if (SizeMB > 0) {
+		Print(L"Size: %lu MB\n", SizeMB);
+	} else if (SizeKB > 0) {
+		Print(L"Size: %lu KB\n", SizeKB);
+	} else {
+		Print(L"Size: %lu Bytes\n", SizeBytes);
+	}
+	Print(L"--------------------------------\n");
+}
+
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"MemoryMap Viewer Application!\n");
@@ -47,9 +65,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	EFI_STATUS Status;
 
 	Print(L"Declaration of variables done\n");
-
-	volatile int x = 0;
-	x++;
 
 	Status = uefi_call_wrapper(
 		SystemTable->BootServices->GetMemoryMap,
@@ -100,41 +115,70 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		&DescriptorVersion
 	);
 
+	if (EFI_ERROR(Status)) {
+    	Print(L"GetMemoryMap failed: %r\n", Status);
+    	return Status;
+	}
 
-	Print(L"MemoryMapSize: %d\n", MemoryMapSize);
+	Print(L"MemoryMapSize: %lu\n", MemoryMapSize);
 
 	if (DescriptorSize == 0) {
     	Print(L"DescriptorSize is 0!\n");
     	return EFI_ABORTED;
 	}
 
-	for (
-		EFI_MEMORY_DESCRIPTOR *Desc = MemoryMap;
-		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
-		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)
-	) {
-		UINT64 SizeBytes = Desc->NumberOfPages * 4096;
-		UINT64 SizeKB = SizeBytes / 1024;
-		UINT64 SizeMB = SizeKB / 1024;
+	/*
+	 * GROUP PAGES BY TYPE
+	 */
 
-		Print(L"Type: %s\n", MemoryTypeToStr(Desc->Type));
-		Print(L"Start: 0x%lx\n", Desc->PhysicalStart);
-		Print(L"Pages: %lu\n", Desc->NumberOfPages);
-		if (SizeMB > 0) {
-			Print(L"Size: %lu MB\n", SizeMB);
-		} else if (SizeKB > 0) {
-			Print(L"Size: %lu KB\n", SizeKB);
-		} else {
-			Print(L"Size: %lu Bytes\n", SizeBytes);
+	EFI_MEMORY_DESCRIPTOR *Desc;
+
+	EFI_MEMORY_TYPE currentType = 0;
+	UINT64 currentStart = 0;
+	UINT64 currentPages = 0;
+	UINT64 currentEnd;
+	BOOLEAN first = TRUE;
+
+	for (Desc = MemoryMap;
+		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
+		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)) 
+	{
+		if (first) {
+			currentType = Desc->Type;
+			currentStart = Desc->PhysicalStart;
+			currentPages = Desc->NumberOfPages;
+			first = FALSE;
+			continue;
 		}
-		Print(L"--------------------------------\n");
+
+		currentEnd = currentStart + currentPages * 4096;
+
+		BOOLEAN contiguous = 
+			(Desc->Type == currentType) &&
+			(Desc->PhysicalStart == currentEnd);
+
+		if (contiguous) {
+			currentPages += Desc->NumberOfPages;
+		} else {
+			PrintGroup(currentType, currentStart, currentPages);
+
+			currentType = Desc->Type;
+			currentStart = Desc->PhysicalStart;
+			currentPages = Desc->NumberOfPages;
+		}
 	}
 
-	UINTN Count = MemoryMapSize / DescriptorSize;
+	PrintGroup(currentType, currentStart, currentPages);
 
 	Print(L"MemoryMapSize: %lx\n", MemoryMapSize);
-	Print(L"DescriptorSize: %d\n", DescriptorSize);
-	Print(L"MapKey: %d\n", MapKey);
+	Print(L"DescriptorSize: %lu\n", DescriptorSize);
+	Print(L"MapKey: %lu\n", MapKey);
+
+	uefi_call_wrapper(
+    	SystemTable->BootServices->FreePool,
+    	1,
+    	MemoryMap
+	);
 
 	return EFI_SUCCESS;
 }
