@@ -25,10 +25,43 @@ CHAR16* MemoryTypeToStr(UINT32 Type) {
     }
 }
 
-void PrintGroup(UINT32 Type, EFI_PHYSICAL_ADDRESS PhysicalStart, UINT64 NumberOfPages) {
+void setColorForType(UINT32 Type, EFI_SYSTEM_TABLE *SystemTable) {
+	switch(Type) {
+		case EfiConventionalMemory:
+	        SetColor(SystemTable, EFI_LIGHTGREEN);
+	        break;
+
+	    case EfiBootServicesCode:
+	    case EfiBootServicesData:
+	        SetColor(SystemTable, EFI_YELLOW);
+	        break;
+
+	    case EfiRuntimeServicesCode:
+	    case EfiRuntimeServicesData:
+	        SetColor(SystemTable, EFI_LIGHTCYAN);
+	        break;
+
+	    default:
+	        SetColor(SystemTable, EFI_LIGHTRED);
+	        break;
+	}
+}
+
+void SetColor(EFI_SYSTEM_TABLE *SystemTable, UINTN Color)
+{
+	uefi_call_wrapper(
+		SystemTable->ConOut->SetAttribute,
+		2,
+		SystemTable->ConOut,
+		Color
+	);
+}
+
+void PrintGroup(UINT32 Type, EFI_PHYSICAL_ADDRESS PhysicalStart, UINT64 NumberOfPages, EFI_SYSTEM_TABLE *SystemTable) {
 	UINT64 SizeBytes = (UINT64) NumberOfPages * 4096;
 	UINT64 SizeKB = SizeBytes / 1024;
 	UINT64 SizeMB = SizeKB / 1024;
+	setColorForType(Type, SystemTable);
 
 	Print(L"Type: %s\n", MemoryTypeToStr(Type));
 	Print(L"Start: 0x%lx\n", PhysicalStart);
@@ -160,7 +193,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		if (contiguous) {
 			currentPages += Desc->NumberOfPages;
 		} else {
-			PrintGroup(currentType, currentStart, currentPages);
+			PrintGroup(currentType, currentStart, currentPages, SystemTable);
 
 			currentType = Desc->Type;
 			currentStart = Desc->PhysicalStart;
@@ -168,7 +201,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		}
 	}
 
-	PrintGroup(currentType, currentStart, currentPages);
+	PrintGroup(currentType, currentStart, currentPages, SystemTable);
 
 	Print(L"MemoryMapSize: %lx\n", MemoryMapSize);
 	Print(L"DescriptorSize: %lu\n", DescriptorSize);
