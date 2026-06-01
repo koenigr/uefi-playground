@@ -26,13 +26,13 @@ CHAR16* MemoryTypeToStr(UINT32 Type) {
 }
 
 EFI_STATUS PrintGroup(UINT32 Type, EFI_PHYSICAL_ADDRESS PhysicalStart, UINT64 NumberOfPages) {
-	UINT64 SizeBytes = Desc->NumberOfPages * 4096;
+	UINT64 SizeBytes = NumberOfPages * 4096;
 	UINT64 SizeKB = SizeBytes / 1024;
 	UINT64 SizeMB = SizeKB / 1024;
 
-	Print(L"Type: %s\n", MemoryTypeToStr(Desc->Type));
-	Print(L"Start: 0x%lx\n", Desc->PhysicalStart);
-	Print(L"Pages: %lu\n", Desc->NumberOfPages);
+	Print(L"Type: %s\n", MemoryTypeToStr(Type));
+	Print(L"Start: 0x%lx\n", PhysicalStart);
+	Print(L"Pages: %lu\n", NumberOfPages);
 	if (SizeMB > 0) {
 		Print(L"Size: %lu MB\n", SizeMB);
 	} else if (SizeKB > 0) {
@@ -122,13 +122,46 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     	return EFI_ABORTED;
 	}
 
-	for (
-		EFI_MEMORY_DESCRIPTOR *Desc = MemoryMap;
-		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
-		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)
-	) {
+	/*
+	 * GROUP PAGES BY TYPE
+	 */
 
+	EFI_MEMORY_DESCRIPTOR *Desc;
+
+	EFI_MEMORY_TYPE currentType = 0;
+	UINT64 currentStart = 0;
+	UINT64 currentPages = 0;
+	BOOLEAN first = TRUE;
+
+	for (Desc = MemoryMap;
+		(UINT8*)Desc < (UINT8*)MemoryMap + MemoryMapSize;
+		Desc = (EFI_MEMORY_DESCRIPTOR*)((UINT8*)Desc + DescriptorSize)) 
+	{
+		if (first) {
+			currentType = Desc->Type;
+			currentStart = Desc->PhysicalStart;
+			currentPages = Desc->NumberOfPages;
+			first = FALSE;
+			continue;
+		}
+
+		BOOLEAN contiguous = 
+			(Desc->Type == currentType) &&
+			(Desc->PhysicalStart == currentStart + currentPages * 4096);
+
+		if (contiguous) {
+			currentPages += Desc->NumberOfPages;
+		} else {
+			PrintGroup(currentType, currentStart, currentPages);
+
+			currentType = Desc->Type;
+			currentStart = Desc->PhysicalStart;
+			currentPages = Desc->NumberOfPages;
+		}
 	}
+
+	PrintGroup(currentType, currentStart, currentPages);
+
 
 	UINTN Count = MemoryMapSize / DescriptorSize;
 
