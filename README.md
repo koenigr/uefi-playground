@@ -11,6 +11,20 @@ This project explores:
 
 Main goal is to see differences between a simple Application inside UEFI and a bootable Executable.
 
+## Current Features
+
+### Applications
+- Hello World application
+- Memory Map Viewer
+	- Retrieves the UEFI memory map via `GetMemoryMap()`
+	- Displays memory regions and sizes
+	- Groups contiguous memory regions of the same type
+	- Uses color-coded output for improved readability
+
+### Boot Loaders
+- Template boot loader
+- Linux loader (work in progress)
+
 # Resources/ Documentation
 
 https://uefi.org  
@@ -31,7 +45,7 @@ A UEFI application is executed by an already running UEFI firmware environment.
 - Started manually from the UEFI shell or boot manager
 - Runs with full access to Boot Services
 - Uses the existing system context (no system takeover)
-- Example: memory mao viewer, filesystem tools, diagnostics
+- Example: memory map viewer, filesystem tools, diagnostics
 
 ## Bootable EFI Loader
 A bootable EFI image acts as a **boot entry point for an operating system**.
@@ -42,31 +56,57 @@ A bootable EFI image acts as a **boot entry point for an operating system**.
 - Runs early in the boot process before ExitBootServices()
 
 ## Key Difference
-The main idfference is **role in the boot process**:
+The main difference is **role in the boot process**:
 - Applications run *on top of firmware*
 - Bootable loaders *transition from firmware to OS*
 
 Both use the same UEFI interfaces, but operate at different stages of system initialization.
 
-## Lerning Focus of this Project
+## Learning Focus of this Project
 This project is intentionally focused on low-level firmware behaviour and UEFI-specific details, including:
 
 - Boot Services lifecycle and constraints
 - Memory management via 'GetMemoryMap'
-- Calling conventions and API details (e.g. stack alignment issues)
+- Calling conventions and ABI compatibility berween GNU-EFI and firmware services
+- Investigating issues caused by incorrect parameter layouts and calling conventions
 - Differences between firmware execution contexts and OS handoff
 - Debugging behaviour in QEMU/OVMF environments
 
-A key goal is to understand subtle implementation details that are often abstracted away in higher-level systems programmin, such as why certain UEFI calls my behave differently depending on parameter layout or compiler/API configuration.
+A key goal is to understand subtle implementation details that are often abstracted away in higher-level systems programming, such as why certain UEFI calls may behave differently depending on parameter layout or compiler/API configuration.
 
-# Screenshot
-Bootscreen in QEMU
+# Screenshots
+## Example Output
 
 ![UEFI Boot in QEMU showing HelloEfi output](assets/Running.jpg)
 
+## Memory Map Viewer
+
+![Memory Map Viewer with colored output](assets/MemoryMap.jpg)
+
 
 # Architecture
-Host Linux  ->  Build EFI Binary  ->  QEMU + OVMF  ->  UEFI Application  
+Host Linux
+    |
+    +--> UEFI APplication
+    |
+    +--> Boot Loader
+            |
+            +--> Linux Kernel (planned)
+
+# Roadmap
+
+## Completed
+- Project setup
+- QEMU + OVMF environment
+- Hello World application
+- Memory Map Viewer
+
+## Planned
+- Filesystem Explorer
+- Graphics Output Protocol (GOP) demo
+- Linux kernel loader
+- ExitBootServices() handoff
+- Connection to GDB
 
 # Dependencies
 
@@ -76,6 +116,7 @@ sudo apt install ovmf qemu-system-x86 gnu-efi
 ```
 
 # Build Instructions
+Build all EFI binaries and start QEMU:
 ```bash
 make run
 ```
