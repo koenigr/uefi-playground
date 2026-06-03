@@ -85,13 +85,15 @@ A key goal is to understand subtle implementation details that are often abstrac
 
 
 # Architecture
-Host Linux
-    |
-    +--> UEFI APplication
-    |
-    +--> Boot Loader
-            |
-            +--> Linux Kernel (planned)
+```text
+Host Linux  
+    |  
+    +--> UEFI APplication  
+    |  
+    +--> Boot Loader  
+            |  
+            +--> Linux Kernel (planned)  
+```
 
 # Roadmap
 
