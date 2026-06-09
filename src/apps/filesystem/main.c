@@ -111,6 +111,20 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		EFI_FILE_INFO *FileInfo = (EFI_FILE_INFO*)Buffer;
 		Print(L"%s\n", FileInfo->FileName);
 
+		Print(L"    Size: %lu\n", FileInfo->FileSize);
+		Print(L"    Physical Size: %lu\n", FileInfo->PhysicalSize);
+
+		Print(L"    Attributes: ");
+
+		if (FileInfo->Attribute & EFI_FILE_DIRECTORY)
+			Print(L"Directory ");
+		if (FileInfo->Attribute & EFI_FILE_ARCHIVE) 
+			Print(L"Archive ");
+		if (FileInfo->Attribute & EFI_FILE_READ_ONLY)
+			Print(L"ReadOnly ");
+
+		Print(L"\n\n");
+
 	}
 
 	FreePool(Buffer);
