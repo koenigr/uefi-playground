@@ -79,6 +79,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	while(1) {
 
+		BufferSize = 1024; 
+
 		Status = uefi_call_wrapper(
 			Root->Read,
 			3,
@@ -96,7 +98,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 			FreePool(Buffer);
 			Buffer = NULL;
-			BufferSize = 1024;
 
 			Status = uefi_call_wrapper(
 				BootServices->AllocatePool,
@@ -145,6 +146,19 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 		Print(L"\n\n");
 
+		EFI_FILE_PROTOCOL *File;
+
+		Status = OpenFile(Root, FileInfo->FileName, &File);
+
+		if (!EFI_ERROR(Status)) {
+			Print(L"Opened: %s\n", FileInfo->FileName);
+			uefi_call_wrapper(
+				File->Close,
+				1,
+				File
+			);
+			Print(L"Closed: %s\n", FileInfo->FileName);
+		}
 	}
 
 	FreePool(Buffer);
