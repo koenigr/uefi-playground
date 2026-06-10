@@ -1,6 +1,26 @@
 #include <efi.h>
 #include <efilib.h>
 
+EFI_STATUS OpenFile(EFI_FILE_PROTOCOL* Root, CHAR16* Path, EFI_FILE_PROTOCOL** File) {
+
+	if (Root == NULL || Path == NULL || File == NULL)
+		return EFI_INVALID_PARAMETER;
+
+	EFI_STATUS Status;
+
+	Status = uefi_call_wrapper(
+		Root->Open,
+		5,
+		Root,
+		File,
+		Path,
+		EFI_FILE_MODE_READ,
+		0
+	);
+
+	return Status;
+}
+
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
