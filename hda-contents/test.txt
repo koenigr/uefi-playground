@@ -1,0 +1,3 @@
+Hello from UEFI!
+This file was loaded successfully.
+Line 3.
