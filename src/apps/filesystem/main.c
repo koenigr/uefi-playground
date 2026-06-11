@@ -1,6 +1,8 @@
 #include <efi.h>
 #include <efilib.h>
 
+// todo use extern EFI_BOOT_SERVICES *BS;
+
 EFI_STATUS OpenFile(EFI_FILE_PROTOCOL* Root, CHAR16* Path, EFI_FILE_PROTOCOL** File) {
 
 	if (Root == NULL || Path == NULL || File == NULL)
@@ -17,6 +19,67 @@ EFI_STATUS OpenFile(EFI_FILE_PROTOCOL* Root, CHAR16* Path, EFI_FILE_PROTOCOL** F
 		EFI_FILE_MODE_READ,
 		0
 	);
+
+	return Status;
+}
+
+
+EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES* BootServices) {
+	if (File == NULL || Size == NULL)
+		return EFI_INVALID_PARAMETER;
+
+
+	UINTN InfoSize = 0;
+	VOID *InfoBuffer = NULL;
+
+	EFI_STATUS Status; 
+
+	Status = uefi_call_wrapper(
+		File->GetInfo,
+		4,
+		File,
+		&gEfiFileInfoGuid,
+		&InfoSize,
+		InfoBuffer
+	);
+
+	if (Status == EFI_BUFFER_TOO_SMALL) {
+
+		InfoBuffer = NULL;
+
+		Status = uefi_call_wrapper(
+			BootServices->AllocatePool,
+			3,
+			EfiLoaderData,
+			InfoSize,
+			&InfoBuffer
+		);
+
+		if (EFI_ERROR(Status)) {
+			Print(L"AllocatePool failed: %r\n", Status);
+			return Status;
+		}
+
+		Status = uefi_call_wrapper(
+			File->GetInfo,
+			4,
+			File,
+			&gEfiFileInfoGuid,
+			&InfoSize,
+			InfoBuffer
+		);
+
+		if (EFI_ERROR(Status)) {
+			Print(L"GetInfo failed: %r\n", Status);
+			FreePool(InfoBuffer);
+			return Status;
+		}
+
+		EFI_FILE_INFO *FileInfo = (EFI_FILE_INFO*)InfoBuffer;
+		*Size = FileInfo->FileSize;
+	}
+
+	FreePool(InfoBuffer);
 
 	return Status;
 }
@@ -151,110 +214,73 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	Status = OpenFile(Root, L"test.txt", &File);
 
-	if (!EFI_ERROR(Status)) {
-		Print(L"Opened test.txt\n");
-
-		UINTN InfoSize = 0;
-		VOID *InfoBuffer = NULL;
-
-		Status = uefi_call_wrapper(
-			File->GetInfo,
-			4,
-			File,
-			&gEfiFileInfoGuid,
-			&InfoSize,
-			InfoBuffer
-		);
-
-
-		if (Status == EFI_BUFFER_TOO_SMALL) {
-
-			InfoBuffer = NULL;
-
-			Status = uefi_call_wrapper(
-				BootServices->AllocatePool,
-				3,
-				EfiLoaderData,
-				InfoSize,
-				&InfoBuffer
-			);
-
-			if (EFI_ERROR(Status)) {
-				Print(L"AllocatePool failed: %r\n", Status);
-				return Status;
-			}
-
-			Status = uefi_call_wrapper(
-				File->GetInfo,
-				4,
-				File,
-				&gEfiFileInfoGuid,
-				&InfoSize,
-				InfoBuffer
-			);
-
-			if (EFI_ERROR(Status)) {
-				Print(L"GetInfo failed: %r\n", Status);
-				return Status;
-			}
-
-			EFI_FILE_INFO *FileInfo = (EFI_FILE_INFO*)InfoBuffer;
-			Print(L"File size: %lu\n", FileInfo->FileSize);
-
-			VOID *FileBuffer = NULL;
-
-			Status = uefi_call_wrapper(
-				BootServices->AllocatePool,
-				3,
-				EfiLoaderData,
-				FileInfo->FileSize + 1,
-				&FileBuffer
-			);
-
-			if (EFI_ERROR(Status)) {
-				Print(L"AllocatePool failed: %r\n", Status);
-				return Status;
-			}
-
-			UINTN FileSize = FileInfo->FileSize;
-
-			Status = uefi_call_wrapper(
-				File->Read,
-				3,
-				File,
-				&FileSize,
-				FileBuffer
-			);
-
-			if (EFI_ERROR(Status)) {
-				Print(L"Read failed: %r\n", Status);
-				return Status;
-			}
-
-			((CHAR8*)FileBuffer)[FileSize] = '\0';
-
-			CHAR8 *Text = (CHAR8*)FileBuffer;
-
-			Print(L"\nContents:\n");
-
-			for (UINTN i = 0; i < FileSize; i++) {
-				Print(L"%c", Text[i]);
-			}
-
-			Print(L"\n");
-
-			FreePool(FileBuffer);
-			FreePool(InfoBuffer);
-
-		}
-
-		uefi_call_wrapper(
-			File->Close,
-			1,
-			File
-		);
-		Print(L"Closed test.txt\n");
+	if (EFI_ERROR(Status)) {
+		Print(L"OpenFile failed: %r\n", Status);
+		return Status;
 	}
+	
+	Print(L"Opened test.txt\n");
+
+	UINT64 FileSize;
+
+	Status = GetFileSize(File, &FileSize, BootServices);
+
+	if (EFI_ERROR(Status)) {
+		Print(L"GetFileSize failed: %r\n", Status);
+		return Status;
+	}
+
+	VOID *FileBuffer = NULL;
+
+	Status = uefi_call_wrapper(
+		BootServices->AllocatePool,
+		3,
+		EfiLoaderData,
+		FileSize + 1,
+		&FileBuffer
+	);
+
+	if (EFI_ERROR(Status)) {
+		Print(L"AllocatePool failed: %r\n", Status);
+		return Status;
+	}
+
+	UINTN BytesToRead = (UINTN)FileSize;
+
+	Status = uefi_call_wrapper(
+		File->Read,
+		3,
+		File,
+		&BytesToRead,
+		FileBuffer
+	);
+
+	if (EFI_ERROR(Status)) {
+		Print(L"Read failed: %r\n", Status);
+		return Status;
+	}
+
+	((CHAR8*)FileBuffer)[FileSize] = '\0';
+
+	CHAR8 *Text = (CHAR8*)FileBuffer;
+
+	Print(L"\nContents:\n");
+
+	for (UINTN i = 0; i < FileSize; i++) {
+		Print(L"%c", Text[i]);
+	}
+
+	Print(L"\n");
+
+	FreePool(FileBuffer);
+
+	uefi_call_wrapper(
+		File->Close,
+		1,
+		File
+	);
+
+	Print(L"Closed test.txt\n");
 
 	FreePool(Buffer);
 
