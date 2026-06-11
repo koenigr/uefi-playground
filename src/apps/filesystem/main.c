@@ -1,7 +1,6 @@
 #include <efi.h>
 #include <efilib.h>
 
-// todo use extern EFI_BOOT_SERVICES *BS;
 
 EFI_STATUS OpenFile(EFI_FILE_PROTOCOL* Root, CHAR16* Path, EFI_FILE_PROTOCOL** File) {
 
@@ -32,7 +31,7 @@ EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES*
 	UINTN InfoSize = 0;
 	VOID *InfoBuffer = NULL;
 
-	EFI_STATUS Status; 
+	EFI_STATUS Status;
 
 	Status = uefi_call_wrapper(
 		File->GetInfo,
@@ -82,6 +81,76 @@ EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES*
 	FreePool(InfoBuffer);
 
 	return Status;
+}
+
+EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices) {
+	if (Dir == NULL) {
+		return EFI_INVALID_PARAMETER;
+	}
+
+	EFI_STATUS Status;
+	UINTN BufferSize = 4096;
+	VOID *Buffer = NULL;
+
+	EFI_BOOT_SERVICES *BS = gBS;
+
+	Status = BS->AllocatePool(EfiLoaderData, BufferSize, &Buffer);
+	if (EFI_ERROR(Status)) {
+		return Status;
+	}
+
+	while(1) {
+		BufferSize = 4096;
+
+		Status = Dir-> Read(Dir, &BufferSize, Buffer);
+
+		if (EFI_ERROR(Status) && Status != EFI_BUFFER_TOO_SMALL) {
+			FreePool(Buffer);
+			return Status;
+		}
+
+		if (Status = EFI_BUFFER_TOO_SMALL) {
+			FreePool(Buffer);
+
+			Status = uefi_call_wrapper(
+				BootServices->AllocatePool,
+				3,
+				EfiLoaderData,
+				BufferSize,
+				&Buffer
+			);
+
+			if (EFI_ERROR(Status)) {
+				return Status;
+			}
+
+			Status = uefi_call_wrapper(
+				Dir->Read,
+				3,
+				Dir,
+				&BufferSize,
+				Buffer
+			);
+
+			if (EFI_ERROR(Status)) {
+				FreePool(Buffer);
+				return Status;
+			}
+		}
+
+		if (BufferSize == 0) {
+			break;
+		}
+
+		EFI_FILE_INFO *Info = (EFI_FILE_INFO *)Buffer;
+
+		Print(L"%s\n", Info->FileName);
+
+	}
+
+	FreePool(Buffer);
+	return EFI_SUCCESS;
+
 }
 
 
