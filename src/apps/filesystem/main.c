@@ -84,6 +84,7 @@ EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES*
 }
 
 EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices, UINTN Depth) {
+
 	if (Dir == NULL) {
 		return EFI_INVALID_PARAMETER;
 	}
@@ -92,15 +93,42 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 	UINTN BufferSize = 4096;
 	VOID *Buffer = NULL;
 
-	Status = BootServices->AllocatePool(EfiLoaderData, BufferSize, &Buffer);
+	/*
+	 * Make sure, that it always starts with position zero
+	 */
+/*	uefi_call_wrapper(
+		Dir->SetPosition,
+		2,
+		Dir,
+		0
+	);*/
+
+	/*
+	 * Allocate Pool for EFI_FILE_INFO
+	 */
+	Status = uefi_call_wrapper(
+		BootServices->AllocatePool,
+		3,
+		EfiLoaderData,
+		BufferSize,
+		&Buffer
+	);
+
 	if (EFI_ERROR(Status)) {
+		Print(L"Failed to allocate Pool: %r\n", Status);
 		return Status;
 	}
 
 	while(1) {
 		BufferSize = 4096;
 
-		Status = Dir-> Read(Dir, &BufferSize, Buffer);
+		Status = uefi_call_wrapper(
+			Dir->Read,
+			3,
+			Dir,
+			&BufferSize,
+			Buffer
+		);
 
 		if (EFI_ERROR(Status) && Status != EFI_BUFFER_TOO_SMALL) {
 			FreePool(Buffer);
@@ -142,6 +170,10 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 			break;
 		}
 
+
+		/*
+		 * Read content of Buffer as EFI_FILE_INFO struct
+		 */
 		EFI_FILE_INFO *Info = (EFI_FILE_INFO *)Buffer;
 
 		if (StrCmp(Info->FileName, L".") == 0 ||
@@ -191,7 +223,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	);
 
 	if (EFI_ERROR(Status)) {
-		Print(L"Failed to locate Simple File System Protocl: %r\n", Status);
+		Print(L"Failed to locate Simple File System Protocol: %r\n", Status);
 		return Status;
 	}
 
@@ -229,7 +261,13 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		return Status;
 	}
 
-	ListDirectory(Root, BootServices, 0);
+	Print(L"Root = 0x%lx\n", (UINT64)Root);
+
+	Status = ListDirectory(Root, BootServices, 0);
+
+	if (EFI_ERROR(Status)) {
+		Print(L"ListDirectory failed: %r\n", Status);
+	}
 
 	EFI_FILE_PROTOCOL *File;
 
