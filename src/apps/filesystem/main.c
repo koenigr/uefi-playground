@@ -130,6 +130,9 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 		return Status;
 	}
 
+	EFI_FILE_INFO *Entries[256];
+	UINTN EntryCount = 0;
+
 	while(1) {
 		BufferSize = 4096;
 
@@ -208,8 +211,35 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 			continue;
 		}
 
-		for (UINTN i = 0; i < Depth; i++) {
-			Print(L"  ");
+		EFI_FILE_INFO *Copy = NULL;
+
+		Status = uefi_call_wrapper(
+			BootServices->AllocatePool,
+			3, EfiLoaderData,
+			BufferSize,
+			(VOID**)&Copy
+		);
+
+		CopyMem(Copy, Info, BufferSize);
+
+		Entries[EntryCount++] = Copy;
+
+	}
+
+	for (UINTN i = 0; i < EntryCount; i++) {
+		EFI_FILE_INFO *Info = Entries[i];
+
+		for (UINTN d = 0; d < Depth; d++) {
+			Print(L"    ");
+		}
+
+
+		BOOLEAN IsLast = (i == EntryCount - 1);
+
+		if (IsLast) {
+			Print(L"└── ");
+		} else {
+			Print(L"├── ");
 		}
 
 		Print(L"%s\n", Info->FileName);
@@ -218,23 +248,31 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 
 			EFI_FILE_PROTOCOL *SubDir;
 
-			Status = OpenFile(Dir, Info->FileName, &SubDir);
+			Status = OpenFile(
+				Dir,
+				Info->FileName,
+				&SubDir
+			);
 
 			if (!EFI_ERROR(Status)) {
-				Status = ListDirectory(SubDir, BootServices, Depth + 1);
+
+				ListDirectory(
+					SubDir,
+					BootServices,
+					Depth + 1
+				);
 
 				uefi_call_wrapper(
 					SubDir->Close,
 					1,
 					SubDir
 				);
-
-				if (EFI_ERROR(Status)) {
-					return Status;
-				}
 			}
 		}
+	}
 
+	for (UINTN i = 0; i < EntryCount; i++) {
+		FreePool(Entries[i]);
 	}
 
 	uefi_call_wrapper(
@@ -286,23 +324,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	}
 
 	Print(L"Opened root volume\n\n");
-
-	VOID *Buffer = NULL;
-	UINTN BufferSize = 1024;
-
-	Status = uefi_call_wrapper(
-		SystemTable->BootServices->AllocatePool,
-		3,
-		EfiLoaderData,
-		BufferSize,
-		&Buffer
-	);
-
-	if (EFI_ERROR(Status)) {
-		Print(L"AllocatePool failed: %r\n", Status);
-		return Status;
-	}
-
 
 	Status = ListDirectory(Root, BootServices, 0);
 
@@ -386,13 +407,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	);
 
 	Print(L"Closed test.txt\n");
-
-	uefi_call_wrapper(
-		BootServices->FreePool,
-		1,
-		Buffer
-	);
-
 
 	return EFI_SUCCESS;
 }
