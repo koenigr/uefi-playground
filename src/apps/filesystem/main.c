@@ -71,7 +71,13 @@ EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES*
 
 		if (EFI_ERROR(Status)) {
 			Print(L"GetInfo failed: %r\n", Status);
-			FreePool(InfoBuffer);
+
+			uefi_call_wrapper(
+				BootServices->FreePool,
+				1,
+				InfoBuffer
+			);
+
 			return Status;
 		}
 
@@ -79,7 +85,12 @@ EFI_STATUS GetFileSize(EFI_FILE_PROTOCOL* File, UINT64* Size, EFI_BOOT_SERVICES*
 		*Size = FileInfo->FileSize;
 	}
 
-	FreePool(InfoBuffer);
+	uefi_call_wrapper(
+		BootServices->FreePool,
+		1,
+		InfoBuffer
+	);
+
 	return EFI_SUCCESS;
 }
 
@@ -131,12 +142,22 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 		);
 
 		if (EFI_ERROR(Status) && Status != EFI_BUFFER_TOO_SMALL) {
-			FreePool(Buffer);
+			uefi_call_wrapper(
+				BootServices->FreePool,
+				1,
+				Buffer
+			);
+
 			return Status;
 		}
 
 		if (Status == EFI_BUFFER_TOO_SMALL) {
-			FreePool(Buffer);
+			uefi_call_wrapper(
+				BootServices->FreePool,
+				1,
+				Buffer
+			);
+
 
 			Status = uefi_call_wrapper(
 				BootServices->AllocatePool,
@@ -159,7 +180,12 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 			);
 
 			if (EFI_ERROR(Status)) {
-				FreePool(Buffer);
+				uefi_call_wrapper(
+					BootServices->FreePool,
+					1,
+					Buffer
+				);
+
 				return Status;
 			}
 
@@ -176,6 +202,7 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 		 */
 		EFI_FILE_INFO *Info = (EFI_FILE_INFO *)Buffer;
 
+
 		if (StrCmp(Info->FileName, L".") == 0 ||
 			StrCmp(Info->FileName, L"..") == 0) {
 			continue;
@@ -188,19 +215,34 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 		Print(L"%s\n", Info->FileName);
 
 		if (Info->Attribute & EFI_FILE_DIRECTORY) {
+
 			EFI_FILE_PROTOCOL *SubDir;
 
 			Status = OpenFile(Dir, Info->FileName, &SubDir);
 
 			if (!EFI_ERROR(Status)) {
-				ListDirectory(SubDir, BootServices, Depth + 1);
-				SubDir->Close(SubDir);
+				Status = ListDirectory(SubDir, BootServices, Depth + 1);
+
+				uefi_call_wrapper(
+					SubDir->Close,
+					1,
+					SubDir
+				);
+
+				if (EFI_ERROR(Status)) {
+					return Status;
+				}
 			}
 		}
 
 	}
 
-	FreePool(Buffer);
+	uefi_call_wrapper(
+		BootServices->FreePool,
+		1,
+		Buffer
+	);
+
 	return EFI_SUCCESS;
 
 }
@@ -243,7 +285,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		return Status;
 	}
 
-	Print(L"Opened root volume\n");
+	Print(L"Opened root volume\n\n");
 
 	VOID *Buffer = NULL;
 	UINTN BufferSize = 1024;
@@ -261,8 +303,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		return Status;
 	}
 
-	Print(L"Root = 0x%lx\n", (UINT64)Root);
-
 	Status = ListDirectory(Root, BootServices, 0);
 
 	if (EFI_ERROR(Status)) {
@@ -278,7 +318,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		return Status;
 	}
 	
-	Print(L"Opened test.txt\n");
+	Print(L"\nOpened test.txt\n");
 
 	UINT64 FileSize;
 
@@ -323,7 +363,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	CHAR8 *Text = (CHAR8*)FileBuffer;
 
-	Print(L"\nContents:\n");
+	Print(L"Contents:\n");
 
 	for (UINTN i = 0; i < FileSize; i++) {
 		Print(L"%c", Text[i]);
@@ -331,7 +371,12 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	Print(L"\n");
 
-	FreePool(FileBuffer);
+	uefi_call_wrapper(
+		BootServices->FreePool,
+		1,
+		FileBuffer
+	);
+
 
 	uefi_call_wrapper(
 		File->Close,
@@ -341,7 +386,12 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	Print(L"Closed test.txt\n");
 
-	FreePool(Buffer);
+	uefi_call_wrapper(
+		BootServices->FreePool,
+		1,
+		Buffer
+	);
+
 
 	return EFI_SUCCESS;
 }
