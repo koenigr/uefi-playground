@@ -255,6 +255,7 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 			);
 
 			if (!EFI_ERROR(Status)) {
+
 				ListDirectory(
 					SubDir,
 					BootServices,
