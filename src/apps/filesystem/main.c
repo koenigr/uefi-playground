@@ -303,6 +303,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 		return Status;
 	}
 
+
 	Status = ListDirectory(Root, BootServices, 0);
 
 	if (EFI_ERROR(Status)) {
