@@ -91,8 +91,6 @@ Important implementation details:
 
 ---
 
-## Planned Applications
-
 ### Filesystem Explorer
 
 Goal:
@@ -100,6 +98,9 @@ Goal:
 - Open volumes
 - Enumerate directories
 - Read files
+
+
+## Planned Applications
 
 ---
 
@@ -250,12 +251,12 @@ Completed:
 - QEMU + OVMF environment
 - Hello World
 - Memory Map Viewer
-
-Next:
 - Filesystem Explorer
 
-Later:
+Next:
 - Graphics Output Protocol
+
+Later:
 - Linux Loader
 - ExitBootServices()
 - Kernel handoff
