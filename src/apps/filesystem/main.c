@@ -242,7 +242,23 @@ EFI_STATUS ListDirectory(EFI_FILE_PROTOCOL *Dir, EFI_BOOT_SERVICES *BootServices
 			Print(L"├── ");
 		}
 
-		Print(L"%s\n", Info->FileName);
+		Print(L"%s", Info->FileName);
+
+		UINTN len = StrLen(Info->FileName);
+		while (len < 30 - Depth * 4) {
+			Print(L" ");
+			len++;
+		}
+
+		Print(L"%10lu bytes %04u-%02u-%02u %02u:%02u:%02u\n",
+			Info->FileSize,
+			Info->ModificationTime.Year,
+			Info->ModificationTime.Month,
+			Info->ModificationTime.Day,
+			Info->ModificationTime.Hour,
+			Info->ModificationTime.Minute,
+			Info->ModificationTime.Second
+		);
 
 		if (Info->Attribute & EFI_FILE_DIRECTORY) {
 
