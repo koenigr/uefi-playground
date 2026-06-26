@@ -20,7 +20,7 @@ This project is not about abstraction - it is about understanding what happens *
 ## Completed
 - Hello World UEFI application
 - Memory Map Viewer
-- Filesystem Eplorer
+- Filesystem Explorer
 
 ## In Progress
 - Graphics Output Protocol (GOP) demo
@@ -35,7 +35,7 @@ This project is not about abstraction - it is about understanding what happens *
 
 ## Documentation
 
-- Memory Mao
+- Memory Map
 	- [Memory Map Documentation](docs/memory/memorymap_viewer.md) 
 - Filesystem
 	- [EFI_FILE_INFO structure and allocation](docs/filesystem/efi_file_info.md)
