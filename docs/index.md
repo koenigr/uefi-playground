@@ -1,3 +1,9 @@
+---
+layout: default
+title: UEFI Playground
+---
+
+
 # UEFI Playground
 A hands-on learning project exploring **UEFI firmware development**, low-level boot processes, and system initialization.
 
