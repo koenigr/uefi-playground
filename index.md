@@ -31,9 +31,9 @@ This project is not about abstraction - it is about understanding what happens *
 ## Documentation
 
 - Memory Mao
-	- [Memory Map Documentation](memory/memorymap_viewer.md) 
+	- [Memory Map Documentation](docs/memory/memorymap_viewer.md) 
 - Filesystem
-	- [EFI_FILE_INFO structure and allocation](filesystem/efi_file_info.md)
+	- [EFI_FILE_INFO structure and allocation](docs/filesystem/efi_file_info.md)
 
 ## Roadmap
 
