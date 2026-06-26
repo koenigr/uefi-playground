@@ -1,6 +1,15 @@
 # UEFI Playground
+A hands-on learning project exploring **UEFI firmware development**, low-level boot processes, and system initialization.
 
-A learning-focused UEFI development project
+This project is not about abstraction - it is about understanding what happens *before an operating system exists*.
+
+## What this project explores
+- UEFI Applications and Boot Services
+- Memory management via `GetMemoryMap()`
+- Filesystem access through EFI protocols
+- Graphics Output Protocol (GOP)
+- Boot process transition (firmware -> OS)
+- QEMU + OVMF emulation environment
 
 ## Completed
 
@@ -12,7 +21,7 @@ A learning-focused UEFI development project
 - Filesystem Explorer
 
 ## Project Status
-[See whole description of project status](Project_Status.md)
+[See whole description of project status](Project-Status.md)
 
 ## Documentation
 
