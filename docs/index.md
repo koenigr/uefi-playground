@@ -11,14 +11,19 @@ This project is not about abstraction - it is about understanding what happens *
 - Boot process transition (firmware -> OS)
 - QEMU + OVMF emulation environment
 
+# Current Status
 ## Completed
-
-- Hello World
+- Hello World UEFI application
 - Memory Map Viewer
+- Filesystem Eplorer
 
 ## In Progress
+- Graphics Output Protocol (GOP) demo
 
-- Filesystem Explorer
+## Planned
+- Linux kernel loader
+- `ExitBootServices()` handoff
+- GDB debugging integration
 
 ## Project Status
 [See whole description of project status](Project-Status.md)
