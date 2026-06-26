@@ -20,6 +20,12 @@ Main goal is to see differences between a simple Application inside UEFI and a b
 	- Displays memory regions and sizes
 	- Groups contiguous memory regions of the same type
 	- Uses color-coded output for improved readability
+ - Filesystem Explorer
+   	- Locates the Simple File System Protocol
+   	- Opens the root volume
+   	- Enumerates directories recursively
+   	- Displays file metadata
+   	- Reads file contents
 
 ### Boot Loaders
 - Template boot loader
@@ -71,6 +77,7 @@ This project is intentionally focused on low-level firmware behaviour and UEFI-s
 - Investigating issues caused by incorrect parameter layouts and calling conventions
 - Differences between firmware execution contexts and OS handoff
 - Debugging behaviour in QEMU/OVMF environments
+- UEFI filesystem protocols and directory traversal
 
 A key goal is to understand subtle implementation details that are often abstracted away in higher-level systems programming, such as why certain UEFI calls may behave differently depending on parameter layout or compiler/API configuration.
 
@@ -83,16 +90,23 @@ A key goal is to understand subtle implementation details that are often abstrac
 
 ![Memory Map Viewer with colored output](assets/MemoryMap.jpg)
 
+## Filesystem Explorer
+
+![Filesystem Explorer listing directories recursively](assets/FilesystemExplorer.jpg)
+
 
 # Architecture
 ```text
 Host Linux  
     |  
-    +--> UEFI APplication  
+    +--> UEFI Applications
+	|		+--> Hello World
+	|		+--> Memory Map Viewer
+	|		+--> Filesystem Explorer  
     |  
     +--> Boot Loader  
             |  
-            +--> Linux Kernel (planned)  
+            +--> Linux Loader (planned)  
 ```
 
 # Roadmap
@@ -102,9 +116,9 @@ Host Linux
 - QEMU + OVMF environment
 - Hello World application
 - Memory Map Viewer
+- Filesystem Explorer
 
 ## Planned
-- Filesystem Explorer
 - Graphics Output Protocol (GOP) demo
 - Linux kernel loader
 - ExitBootServices() handoff
