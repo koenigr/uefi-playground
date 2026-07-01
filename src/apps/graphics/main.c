@@ -28,8 +28,10 @@ void PrintAvailableModes(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, EFI_BOOT_SERVICES *B
 	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
 	UINTN SizeOfInfo;
 
+	EFI_STATUS Status;
+
 	for (UINT32 mode = 0; mode < gop->Mode->MaxMode; mode++) {
-		uefi_call_wrapper(
+		Status = uefi_call_wrapper(
 			gop->QueryMode,
 			4,
 			gop,
@@ -37,6 +39,10 @@ void PrintAvailableModes(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, EFI_BOOT_SERVICES *B
 			&SizeOfInfo,
 			&Info
 		);
+
+		if (EFI_ERROR(Status)) {
+			continue;
+		}
 
 		Print(
 			L"Mode %u: %ux%u\n",
@@ -100,6 +106,22 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	DisplayCurrentModeInformation(Mode);
 
 	// PrintAvailableModes(gop, BootServices);
+
+	Status = uefi_call_wrapper(
+		gop->SetMode,
+		2,
+		gop,
+		0
+	);
+
+	if(EFI_ERROR(Status)) {
+		Print(L"SetMode failed: %r\n", Status);
+		return Status;
+	}
+
+	Mode = gop->Mode;
+
+	DisplayCurrentModeInformation(Mode);
 
 	return EFI_SUCCESS;
 }
