@@ -23,6 +23,63 @@ CHAR16 *PixelFormatToString(EFI_GRAPHICS_PIXEL_FORMAT PixelFormat) {
 	}
 }
 
+void PrintAvailableModes(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, EFI_BOOT_SERVICES *BootServices) {
+
+	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
+	UINTN SizeOfInfo;
+
+	EFI_STATUS Status;
+
+	for (UINT32 mode = 0; mode < gop->Mode->MaxMode; mode++) {
+		Status = uefi_call_wrapper(
+			gop->QueryMode,
+			4,
+			gop,
+			mode,
+			&SizeOfInfo,
+			&Info
+		);
+
+		if (EFI_ERROR(Status)) {
+			continue;
+		}
+
+		Print(
+			L"Mode %u: %ux%u\n",
+			mode,
+			Info->HorizontalResolution,
+			Info->VerticalResolution
+		);
+
+		uefi_call_wrapper(
+			BootServices->FreePool,
+			1,
+			Info
+		);
+	}
+}
+
+void DisplayCurrentModeInformation(EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *Mode ) {
+	Print(L"Max Modes		: %u\n", Mode->MaxMode);
+	Print(L"Current Mode: %u\n", Mode->Mode);
+
+	Print(L"Framebuffer Base: 0x%lx\n", Mode->FrameBufferBase);
+	Print(L"Framebuffer Size: %lu bytes\n", Mode->FrameBufferSize);
+
+	Print(L"Resolution		: %ux%u\n",
+			Mode->Info->HorizontalResolution,
+			Mode->Info->VerticalResolution
+	);
+
+	Print(L"Pixels/ScanLine	: %u\n",
+			Mode->Info->PixelsPerScanLine
+	);
+
+	Print(L"Pixel Format	: %s\n",
+			PixelFormatToString(Mode->Info->PixelFormat)
+	);
+}
+
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"Graphics Application!\n");
@@ -46,51 +103,25 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *Mode = gop->Mode;
 
-	Print(L"Framebuffer Base: 0x%lx\n", Mode->FrameBufferBase);
-	Print(L"Framebuffer Size: %lu bytes\n", Mode->FrameBufferSize);
+	DisplayCurrentModeInformation(Mode);
 
-	Print(L"Resolution		: %ux%u\n",
-			Mode->Info->HorizontalResolution,
-			Mode->Info->VerticalResolution
+	// PrintAvailableModes(gop, BootServices);
+
+	Status = uefi_call_wrapper(
+		gop->SetMode,
+		2,
+		gop,
+		0
 	);
 
-	Print(L"Pixels/ScanLine	: %u\n",
-			Mode->Info->PixelsPerScanLine
-	);
-
-	Print(L"Pixel Format	: %s\n",
-			PixelFormatToString(Mode->Info->PixelFormat)
-	);
-
-	Print(L"Max Modes		: %u\n", Mode->MaxMode);
-	Print(L"Current Mode: %u\n", Mode->Mode);
-
-	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
-	UINTN SizeOfInfo;
-
-	for (UINT32 mode = 0; mode < Mode->MaxMode; mode++) {
-		uefi_call_wrapper(
-			gop->QueryMode,
-			4,
-			gop,
-			mode,
-			&SizeOfInfo,
-			&Info
-		);
-
-		Print(
-			L"Mode %u: %ux%u\n",
-			mode,
-			Info->HorizontalResolution,
-			Info->VerticalResolution
-		);
-
-		uefi_call_wrapper(
-			BootServices->FreePool,
-			1,
-			Info
-		);
+	if(EFI_ERROR(Status)) {
+		Print(L"SetMode failed: %r\n", Status);
+		return Status;
 	}
+
+	Mode = gop->Mode;
+
+	DisplayCurrentModeInformation(Mode);
 
 	return EFI_SUCCESS;
 }
