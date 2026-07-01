@@ -158,6 +158,59 @@ Further investigation may be useful later.
 
 ---
 
+### UEFI API Memory Ownership Contracts (Caller vs. Callee)
+
+When working with UEFI protocols, it is not sufficient to rely on function signatures alone to determine memory ownership. The UEFI specification must be consulted to understand whether a buffer is allocated by the caller or the callee.
+
+Example: `EFI_GRAPHICS_OUTPUT_PROTOCOL.QueryMode()`
+
+The function signature alone does not specify ownership:
+
+```c
+EFI_STATUS
+(EFIAPI *QueryMode)(
+    EFI_GRAPHICS_OUTPUT_PROTOCOL *This,
+    UINT32 ModeNumber,
+    UINTN *SizeOfInfo,
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION **Info
+);
+```
+
+Only the specification clarifies that Info is a **callee-allocated buffer**:
+
+```
+"A pointer to a callee allocated buffer that returns information about ModeNumber."
+```
+
+This means:
+
+- The graphics driver allocates the memory internally
+- The caller receives a pointer to this buffer
+- The caller is responsible for freeing it using FreePool()
+
+This is not always consistent across UEFI APIs. For example:
+
+GetMemoryMap() requires the caller to allocate the buffer
+QueryMode() allocates the buffer in the callee
+
+Current finding:
+
+- UEFI memory ownership rules are function-specific and must be verified in the specification or headers
+- The function prototype alone is insufficient to determine allocation responsibility
+
+Example implication:
+
+```c
+// QueryMode(): callee allocates memory
+Status = gop->QueryMode(..., &Info);
+FreePool(Info); // required
+
+// GetMemoryMap(): caller allocates memory
+Status = BootServices->GetMemoryMap(&Size, Buffer, ...);
+```
+
+Further development should always verify memory ownership rules in the UEFI specification before implementing buffer handling logic.
+
 ### GetMemoryMap Behaviour
 
 Typical workflow:
