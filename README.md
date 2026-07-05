@@ -16,16 +16,24 @@ Main goal is to see differences between a simple Application inside UEFI and a b
 ### Applications
 - Hello World application
 - Memory Map Viewer
-	- Retrieves the UEFI memory map via `GetMemoryMap()`
-	- Displays memory regions and sizes
-	- Groups contiguous memory regions of the same type
-	- Uses color-coded output for improved readability
+  - Retrieves the UEFI memory map via `GetMemoryMap()`
+  - Displays memory regions and sizes
+  - Groups contiguous memory regions of the same type
+  - Uses color-coded output for improved readability
  - Filesystem Explorer
-   	- Locates the Simple File System Protocol
-   	- Opens the root volume
-   	- Enumerates directories recursively
-   	- Displays file metadata
-   	- Reads file contents
+  	- Locates the Simple File System Protocol
+  	- Opens the root volume
+  	- Enumerates directories recursively
+  	- Displays file metadata
+  	- Reads file contents
+ - Graphics Output (GOP) Demo
+  - Accesses EFI_GRAPHICS_OUTPUT_PROTOCOL
+  - Retrieves framebuffer base address and configuration
+  - Draws directly to framebuffer memory
+  - Implements pixel-level rendering (PutPixel)
+  - Implements primitive shapes (lines, rectangles, filled areas)
+  - Demonstrates UI separation via screen offset (console vs graphics area)
+ - Runs in QEMU using OVMF with 32-bit framebuffer access
 
 ### Boot Loaders
 - Template boot loader
@@ -94,6 +102,10 @@ A key goal is to understand subtle implementation details that are often abstrac
 
 ![Filesystem Explorer listing directories recursively](assets/FilesystemExplorer.jpg)
 
+## Graphics Output Protocol Demo
+
+![Drawing simple shapes](assets/GOPOutput.jpg)
+
 
 # Architecture
 ```text
@@ -102,7 +114,8 @@ Host Linux
     +--> UEFI Applications
 	|		+--> Hello World
 	|		+--> Memory Map Viewer
-	|		+--> Filesystem Explorer  
+	|		+--> Filesystem Explorer
+	|		+--> GOP Graphics Demo
     |  
     +--> Boot Loader  
             |  
@@ -117,9 +130,9 @@ Host Linux
 - Hello World application
 - Memory Map Viewer
 - Filesystem Explorer
+- GOP Graphics Demo (basic rendering)
 
 ## Planned
-- Graphics Output Protocol (GOP) demo
 - Linux kernel loader
 - ExitBootServices() handoff
 - Connection to GDB
