@@ -84,8 +84,7 @@ void PutPixel(
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
 	UINTN x,
 	UINTN y,
-	UINT32 color
-) {
+	UINT32 color) {
 	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = gop->Mode->Info;
 
 	UINT32 *fb = (UINT32 *)gop->Mode->FrameBufferBase;
@@ -93,6 +92,38 @@ void PutPixel(
 	UINTN offset = y * info->PixelsPerScanLine + x;
 
 	fb[offset] = color;
+}
+
+void DrawHLine(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
+	UINTN x, UINTN y, UINTN length, UINT32 color) {
+	for (UINTN i = 0; i < length; i++) {
+		PutPixel(gop, x + i, y, color);
+	}
+}
+
+void DrawVLine(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
+	UINTN x, UINTN y, UINTN length, UINT32 color) {
+	for (UINTN i = 0; i < length; i++) {
+		PutPixel(gop, x, y + i, color);
+	}
+}
+
+void DrawRect(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
+	UINTN x, UINTN y, UINTN width, UINTN height, UINT32 color) {
+	DrawHLine(gop, x, y, width, color);
+	DrawHLine(gop, x, y + height - 1, width, color);
+
+	DrawVLine(gop, x, y, height, color);
+	DrawVLine(gop, x + width - 1, y, height, color);
+}
+
+void FillRect(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
+	UINTN x, UINTN y, UINTN width, UINTN height, UINT32 color) {
+	for (UINTN j = 0; j < height; j++) {
+		for (UINTN i = 0; i < width; i++) {
+			PutPixel(gop, x + i, y + j, color);
+		}
+	}
 }
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
@@ -149,6 +180,13 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 			PutPixel(gop, x, y, 0x00FFFFFF);
 		}
 	}
+
+	FillRect(gop, 50, 50, 200, 150, 0x0000FF00);
+
+	DrawRect(gop, 300, 50, 200, 150, 0x00FF0000);
+
+	DrawHLine(gop, 50, 250, 300, 0x00FFFFFF);
+	DrawVLine(gop, 200, 300, 200, 0x00FFFFFF);
 
 	return EFI_SUCCESS;
 }
