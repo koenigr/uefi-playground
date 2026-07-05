@@ -1,6 +1,8 @@
 #include <efi.h>
 #include <efilib.h>
 
+#define UI_OFFSET_Y 200
+
 CHAR16 *PixelFormatToString(EFI_GRAPHICS_PIXEL_FORMAT PixelFormat) {
 	switch(PixelFormat) {
 	case PixelRedGreenBlueReserved8BitPerColor:
@@ -89,7 +91,17 @@ void PutPixel(
 
 	UINT32 *fb = (UINT32 *)gop->Mode->FrameBufferBase;
 
-	UINTN offset = y * info->PixelsPerScanLine + x;
+	UINTN realY = y + UI_OFFSET_Y;
+
+	if (realY >= info->VerticalResolution) {
+		return;
+	}
+
+	if (x >= info->HorizontalResolution) {
+		return;
+	}
+
+	UINTN offset = realY * info->PixelsPerScanLine + x;
 
 	fb[offset] = color;
 }
@@ -170,6 +182,19 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	DisplayCurrentModeInformation(Mode);
 #endif
+
+	uefi_call_wrapper(
+		SystemTable->ConOut->ClearScreen,
+		1,
+		SystemTable->ConOut
+	);
+
+	uefi_call_wrapper(
+		SystemTable->ConOut->EnableCursor,
+		2,
+		SystemTable->ConOut,
+		FALSE
+	);
 
 	PutPixel(gop, 10, 10, 0x00FF0000); // Red
 	PutPixel(gop, 20, 10, 0x0000FF00); // Green
