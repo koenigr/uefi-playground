@@ -80,6 +80,21 @@ void DisplayCurrentModeInformation(EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE *Mode ) {
 	);
 }
 
+void PutPixel(
+	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,
+	UINTN x,
+	UINTN y,
+	UINT32 color
+) {
+	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = gop->Mode->Info;
+
+	UINT32 *fb = (UINT32 *)gop->Mode->FrameBufferBase;
+
+	UINTN offset = y * info->PixelsPerScanLine + x;
+
+	fb[offset] = color;
+}
+
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"Graphics Application!\n");
@@ -107,6 +122,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
 	// PrintAvailableModes(gop, BootServices);
 
+#if 0 
 	Status = uefi_call_wrapper(
 		gop->SetMode,
 		2,
@@ -122,6 +138,17 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 	Mode = gop->Mode;
 
 	DisplayCurrentModeInformation(Mode);
+#endif
+
+	PutPixel(gop, 10, 10, 0x00FF0000); // Red
+	PutPixel(gop, 20, 10, 0x0000FF00); // Green
+	PutPixel(gop, 30, 10, 0x000000FF); // Blue
+
+	for (UINTN y = 100; y < 200; y++) {
+		for (UINTN x = 100; x < 200; x++) {
+			PutPixel(gop, x, y, 0x00FFFFFF);
+		}
+	}
 
 	return EFI_SUCCESS;
 }
