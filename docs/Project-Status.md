@@ -56,8 +56,6 @@ build/
 
 ### Hello World
 
-Status: Complete
-
 Features:
 - Basic UEFI application
 - Uses GNU-EFI
@@ -66,8 +64,6 @@ Features:
 ---
 
 ### Memory Map Viewer
-
-Status: Complete (v1)
 
 Features:
 - Calls GetMemoryMap()
@@ -93,26 +89,29 @@ Important implementation details:
 
 ### Filesystem Explorer
 
-Goal:
+Features:
 - Access EFI Simple File System Protocol
 - Open volumes
 - Enumerate directories
 - Read files
 
-
-## Planned Applications
-
 ---
 
-### Graphics Demo
+### Graphics Output (GOP Demo)
 
-Goal:
-- Access Graphics Output Protocol (GOP)
-- Query available modes
-- Draw pixels/shapes
-- Display framebuffer information
+Features:
 
----
+- Accesses EFI_GRAPHICS_OUTPUT_PROTOCOL (GOP)
+- Queries graphics mode information
+- Switches graphics modes via SetMode()
+- Retrieves framebuffer base address and size
+- Direct framebuffer pixel access
+- Implements:
+  - Pixel plotting (PutPixel)
+  - Horizontal / vertical lines
+  - Rectangles (outline + fill)
+- Demonstrates separation between console output and framebuffer rendering
+- Runs successfully in QEMU with OVMF
 
 ## Boot Loader
 
@@ -305,11 +304,9 @@ Completed:
 - Hello World
 - Memory Map Viewer
 - Filesystem Explorer
-
-Next:
 - Graphics Output Protocol
 
-Later:
+Next:
 - Linux Loader
 - ExitBootServices()
 - Kernel handoff
