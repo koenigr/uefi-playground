@@ -1,2 +1,4 @@
 title: UEFI Playground
+description: Leraning UEFI Development
 theme: minima
+markdown: kramdown
