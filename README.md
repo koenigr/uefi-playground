@@ -96,15 +96,15 @@ A key goal is to understand subtle implementation details that are often abstrac
 
 ## Memory Map Viewer
 
-![Memory Map Viewer with colored output](assets/MemoryMap.jpg)
+![Memory Map Viewer with colored output](docs/assets/MemoryMap.jpg)
 
 ## Filesystem Explorer
 
-![Filesystem Explorer listing directories recursively](assets/FilesystemExplorer.jpg)
+![Filesystem Explorer listing directories recursively](docs/assets/FilesystemExplorer.jpg)
 
 ## Graphics Output Protocol Demo
 
-![Drawing simple shapes](assets/GOPOutput.jpg)
+![Drawing simple shapes](docs/assets/GOPOutput.jpg)
 
 
 # Architecture
