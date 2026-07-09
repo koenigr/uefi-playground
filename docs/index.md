@@ -8,6 +8,12 @@ A hands-on learning project exploring **UEFI firmware development**, low-level b
 
 This project is not about abstraction - it is about understanding what happens *before an operating system exists*.
 
+## Getting Started
+ New to UEFI development or this project?
+
+ Start here:
+ [Getting Started](getting-started.md)
+
 ## Learning Topics
 - UEFI Applications and Boot Services
 - Memory management via `GetMemoryMap()`
@@ -28,8 +34,8 @@ This project is not about abstraction - it is about understanding what happens *
 ## Core Concepts
 
 - Boot Services
-- [Memory Map Documentation](docs/memory/memorymap_viewer.md) 
-- [EFI_FILE_INFO structure and allocation](docs/filesystem/efi_file_info.md)
+- [Memory Map Documentation](memory/memorymap_viewer.md) 
+- [EFI_FILE_INFO structure and allocation](filesystem/efi_file_info.md)
 - Protocols
 - ExitBootServices()
 - Graphics Output Protocol
