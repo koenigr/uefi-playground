@@ -92,7 +92,7 @@ A key goal is to understand subtle implementation details that are often abstrac
 # Screenshots
 ## Example Output
 
-![UEFI Boot in QEMU showing HelloEfi output](assets/Running.jpg)
+![UEFI Boot in QEMU showing HelloEfi output](docs/assets/Running.jpg)
 
 ## Memory Map Viewer
 
