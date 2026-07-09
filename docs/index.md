@@ -8,7 +8,7 @@ A hands-on learning project exploring **UEFI firmware development**, low-level b
 
 This project is not about abstraction - it is about understanding what happens *before an operating system exists*.
 
-## What this project explores
+## Learning Topics
 - UEFI Applications and Boot Services
 - Memory management via `GetMemoryMap()`
 - Filesystem access through EFI protocols
@@ -16,32 +16,31 @@ This project is not about abstraction - it is about understanding what happens *
 - Boot process transition (firmware -> OS)
 - QEMU + OVMF emulation environment
 
-# Current Status
-## Completed
-- Hello World UEFI application
-- Memory Map Viewer
-- Filesystem Explorer
+## Applications
 
-## In Progress
-- Graphics Output Protocol (GOP) demo
+| Application | Description |
+|-------------|-------------|
+| [Hello World](applications/hello.md) | First UEFI application |
+| [Memory Map Viewer](applications/memory-map-viewer.md) | Explore the firmware memory map |
+| [Filesystem Explorer](applications/filesystem-explorer.md) | Browse EFI volumes |
+| [Graphics Demo](applications/graphics-demo.md) | Draw directly to the framebuffer |
 
-## Planned
-- Linux kernel loader
-- `ExitBootServices()` handoff
-- GDB debugging integration
+## Core Concepts
 
-## Project Status
-[See whole description of project status](Project-Status.md)
-
-## Documentation
-
-- Memory Map
-	- [Memory Map Documentation](docs/memory/memorymap_viewer.md) 
-- Filesystem
-	- [EFI_FILE_INFO structure and allocation](docs/filesystem/efi_file_info.md)
-
-## Roadmap
-
+- Boot Services
+- [Memory Map Documentation](docs/memory/memorymap_viewer.md) 
+- [EFI_FILE_INFO structure and allocation](docs/filesystem/efi_file_info.md)
+- Protocols
+- ExitBootServices()
 - Graphics Output Protocol
-- Linux Loader
-- ExitBootServices
+
+## Technical Findings
+
+During development several implementation details turned out to be less obvious than expected.
+
+Topics include:
+
+- Memory ownership in UEFI APIs
+- Why GetMemoryMap() requires two calls
+- Descriptor iteration using DescriptorSize
+- ABI compatibility with GNU-EFI
