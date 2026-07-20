@@ -124,4 +124,4 @@ The application displays:
 
 After exploring filesystem access, the next application demonstrates direct graphics rendering through the **Graphics Output Protocol (GOP)**.
 
-[Graphics Demo](graphics.md)
+[Graphics Demo](graphics-demo.md)
