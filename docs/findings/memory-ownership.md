@@ -1,5 +1,7 @@
 ---
 title: UEFI Memory Ownership
+nav_order: 2
+parent: Findings
 ---
 
 # UEFI Memory Ownership

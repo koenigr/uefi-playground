@@ -1,5 +1,7 @@
 ---
 title: UEFI Memory Map
+nav_order: 2
+parent: Concepts
 ---
 
 # UEFI Memory Map

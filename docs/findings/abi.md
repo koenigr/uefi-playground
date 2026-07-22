@@ -1,5 +1,7 @@
 ---
 title: GNU-EFI ABI and Calling Convention
+nav_order: 3
+parent: Findings
 ---
 
 # GNU-EFI ABI and Calling Convention

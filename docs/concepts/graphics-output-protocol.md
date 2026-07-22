@@ -1,5 +1,7 @@
 ---
 title: Graphics Output Protocol
+nav_order: 5
+parent: Concepts
 ---
 
 # Graphics Output Protocol

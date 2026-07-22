@@ -1,5 +1,7 @@
 ---
 title: ExitBootServices
+nav_order: 6
+parent: Concepts
 ---
 
 # ExitBootServices

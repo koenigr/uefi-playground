@@ -1,5 +1,7 @@
 ---
 title: UEFI Boot Services
+nav_order: 1
+parent: Concepts
 ---
 
 # UEFI Boot Services

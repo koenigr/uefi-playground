@@ -1,5 +1,7 @@
 ---
 title: GNU-EFI
+nav_order: 4
+parent: Concepts
 ---
 
 # GNU-EFI

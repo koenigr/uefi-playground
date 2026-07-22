@@ -1,4 +1,6 @@
 ---
+title: UEFI Playground
+nav_order: 1
 ---
 
 # UEFI Playground

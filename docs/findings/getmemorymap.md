@@ -1,5 +1,7 @@
 ---
 title: GetMemoryMap Behaviour
+nav_order: 1
+parent: Findings
 ---
 
 # GetMemoryMap Behaviour

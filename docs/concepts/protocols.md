@@ -1,5 +1,7 @@
 ---
 title: UEFI Protocols
+nav_order: 3
+parent: Concepts
 ---
 
 # UEFI Protocols
