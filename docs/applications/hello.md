@@ -1,5 +1,7 @@
 ---
 title: Hello World UEFI Application
+nav_order: 1
+parent: Applications
 ---
 
 # Hello World UEFI Application

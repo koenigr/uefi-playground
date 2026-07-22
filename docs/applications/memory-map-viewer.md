@@ -1,5 +1,7 @@
 ---
 title: Memory Map Viewer
+nav_order: 2
+parents: Applications
 ---
 
 # Memory Map Viewer

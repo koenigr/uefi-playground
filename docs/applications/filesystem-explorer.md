@@ -1,5 +1,7 @@
 ---
 title: Filesystem Explorer
+nav_order: 3
+parent: Applications
 ---
 
 # Filesystem Explorer

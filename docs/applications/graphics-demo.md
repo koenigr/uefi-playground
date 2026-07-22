@@ -1,5 +1,7 @@
 ---
 title: Graphics Demo
+nav_order: 4
+parent: Applications
 ---
 
 # Graphics Demo

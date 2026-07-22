@@ -1,10 +1,11 @@
 title: UEFI Playground
 description: Learning UEFI Development
 
-theme: minima
+remote_theme: just-the-docs/just-the-docs
 
-minima:
-  hide_site_feed_link: true
+color_scheme: dark
+
+search_enabled: true
 
 markdown: kramdown
 
