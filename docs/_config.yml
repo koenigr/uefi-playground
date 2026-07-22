@@ -3,17 +3,8 @@ description: Learning UEFI Development
 
 remote_theme: just-the-docs/just-the-docs
 
-color_scheme: dark
+color_scheme: custom
 
 search_enabled: true
 
 markdown: kramdown
-
-aux_links:
-  GitHub: https://github.com/koenigr/uefi-playground
-
-sass:
-  style: compressed
-
-plugins:
-  .jekyll-remote-theme
