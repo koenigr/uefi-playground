@@ -1,7 +1,7 @@
 ---
 ---
 
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 
 # UEFI Playground
 A hands-on learning project exploring **UEFI firmware development**, low-level boot processes, and system initialization.
@@ -33,12 +33,11 @@ This project is not about abstraction - it is about understanding what happens *
 
 ## Core Concepts
 
-- Boot Services
-- [Memory Map Documentation](memory/memorymap_viewer.md) 
-- [EFI_FILE_INFO structure and allocation](filesystem/efi_file_info.md)
-- Protocols
-- ExitBootServices()
-- Graphics Output Protocol
+- [Boot Services](concepts/boot-services.md)
+- [Memory Map Documentation](concepts/memory-map.md)
+- [Protocols](concepts/protocols.md)
+- [ExitBootServices](concepts/exit-boot-services.md)
+- [Graphics Output Protocol](concepts/graphics-output-protocol.md)
 
 ## Technical Findings
 
@@ -46,7 +45,7 @@ During development several implementation details turned out to be less obvious 
 
 Topics include:
 
-- Memory ownership in UEFI APIs
-- Why GetMemoryMap() requires two calls
-- Descriptor iteration using DescriptorSize
-- ABI compatibility with GNU-EFI
+- [Memory ownership in UEFI APIs](findings/memory-ownership.md)
+- [GetMemoryMap() behaviour](findings/getmemorymap.md)
+- [Descriptor iteration using DescriptorSize](findings/getmemorymap.md)
+- [ABI compatibility with GNU-EFI](findings/api.md)
