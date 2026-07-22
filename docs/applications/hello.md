@@ -119,8 +119,3 @@ After understanding the basic application structure, the next step is exploring 
 
 Return to:
 [Applications Overview](../index.md)
-
-
-Eine kleine Anmerkung: Ich würde die Screenshots **nicht** auf jede Application-Seite packen. Die Startseite hat schon die Galerie. Bei den Detailseiten würde ich Screenshots nur hinzufügen, wenn sie etwas erklären (z. B. Memory Map mit farbiger Ausgabe oder GOP-Demo).
-
-
