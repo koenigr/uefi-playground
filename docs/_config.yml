@@ -8,3 +8,9 @@ color_scheme: dark
 search_enabled: true
 
 markdown: kramdown
+
+aux_links:
+  GitHub: https://github.com/koenigr/uefi-playground
+
+sass:
+  style: compressed
