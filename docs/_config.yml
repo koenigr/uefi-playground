@@ -14,3 +14,6 @@ aux_links:
 
 sass:
   style: compressed
+
+plugins:
+  .jekyll-remote-theme
