@@ -1,7 +1,7 @@
 ---
 title: Memory Map Viewer
 nav_order: 2
-parents: Applications
+parent: Applications
 ---
 
 # Memory Map Viewer
