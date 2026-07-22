@@ -1,4 +1,11 @@
 title: UEFI Playground
-description: Leraning UEFI Development
+description: Learning UEFI Development
+
 theme: minima
+
+minima:
+  hide_site_feed_link: true
+
 markdown: kramdown
+
+header_pages: []
