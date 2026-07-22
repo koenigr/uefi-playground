@@ -8,5 +8,3 @@ color_scheme: dark
 search_enabled: true
 
 markdown: kramdown
-
-header_pages: []

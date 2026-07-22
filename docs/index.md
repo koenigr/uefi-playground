@@ -1,8 +1,6 @@
 ---
 ---
 
-<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-
 # UEFI Playground
 A hands-on learning project exploring **UEFI firmware development**, low-level boot processes, and system initialization.
 
