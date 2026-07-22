@@ -38,30 +38,20 @@ A simplified execution flow:
 
 ```text
 UEFI Firmware
-
       |
       v
-
 Load EFI application
-
       |
       v
-
 efi_main()
-
       |
       v
-
 Print output
-
       |
       v
-
 Return EFI_STATUS
-
       |
       v
-
 Application exits
 ```
 
