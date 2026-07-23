@@ -5,10 +5,7 @@
 This chapter is based on the official UEFI specification, practical experiments performed in QEMU/OVMF, and the following reference material:
 
 - **UEFI Specification 2.11**  
-  https://uefi.org/specifications
-
-- **UEFI Specification 2.11 (PDF)**  
-  https://uefi.org/sites/default/files/resources/UEFI_Spec_2_11_Aug29.pdf
+  https://uefi.org/specs/UEFI/2.11/index.html
 
 - **Beyond BIOS: Developing with the Unified Extensible Firmware Interface**  
   Vincent Zimmer, Michael Rothman, Suresh Marisetty  
