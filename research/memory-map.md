@@ -7,9 +7,11 @@ This chapter is based on the official UEFI specification, practical experiments 
 - **UEFI Specification 2.11**  
   https://uefi.org/specs/UEFI/2.11/index.html
 
-- **Beyond BIOS: Developing with the Unified Extensible Firmware Interface**  
+- **Beyond BIOS: Developing with the Unified Extensible Firmware Interface, Third Edition**  
   Vincent Zimmer, Michael Rothman, Suresh Marisetty  
-  https://link.springer.com/book/10.1007/978-1-4302-3428-4
+  De|G Press, 2017  
+  ISBN-13: 978-1-5015-1478-4  
+  DOI: 10.1515/9781501505690
 
 - **TianoCore EDK II / OVMF**  
   https://github.com/tianocore/edk2
@@ -25,10 +27,10 @@ This chapter is based on the official UEFI specification, practical experiments 
 
 
 ## Why does the firmware need a memory map
-RAM ist nicht einfach "frei"
-Firmware reserviert Bereiche
-ACPI braucht Speicher
-MMIO ist kein normaler RAM
+RAM ist nicht einfach "frei"  
+Firmware reserviert Bereiche  
+ACPI braucht Speicher  
+MMIO ist kein normaler RAM  
 
 ## Procedure
 Use GetMemoryMap() Boot Service  
@@ -40,9 +42,9 @@ Map Key
 
 ### Why do we need DescriptorSize
 
-Firmware darf Struktur erweitern
-sizeof(EFI_MEMORY_DESCRIPTOR) ist nicht die Wahrheit
-Deshalb Byte-weise iterieren
+Firmware darf Struktur erweitern  
+sizeof(EFI_MEMORY_DESCRIPTOR) ist nicht die Wahrheit  
+Deshalb Byte-weise iterieren  
 
 
 ## Store Memory Map
