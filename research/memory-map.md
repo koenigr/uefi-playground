@@ -27,39 +27,44 @@ This chapter is based on the official UEFI specification, practical experiments 
   https://wiki.osdev.org/Memory_Map_(x86)
 
 
+## Why does the firmware need a memory map
+RAM ist nicht einfach "frei"
+Firmware reserviert Bereiche
+ACPI braucht Speicher
+MMIO ist kein normaler RAM
 
-
-
-### Goal
-Show which memory sections are used or reserved before handing control to the operating system
-
-### Procedure
+## Procedure
 Use GetMemoryMap() Boot Service  
 You get an Array of EFI_MEMORY_DESCRIPTOR  
 Number of Entries  
 Size of Descriptor  
 Map Key
 
-### Store Memory Map
+
+### Why do we need DescriptorSize
+
+Firmware darf Struktur erweitern
+sizeof(EFI_MEMORY_DESCRIPTOR) ist nicht die Wahrheit
+Deshalb Byte-weise iterieren
+
+
+## Store Memory Map
 UEFI requires a two-step GetMemoryMap call:
 - first call: get required buffer size
 - allocate buffer
 - second call: retrieve memory map
 
-### Iterate over Entries
+## Why two calls?
+
+## Iterate over Entries / Layout of EFI_MEMORY_DESCRIPTOR
 - Type (EfiLoaderCode, EfiConventionalMemory,...)
-- Start Address
-- Page count
+- PhysicalStart Address
+- VirtualStart Address
+- NumberOfPages count
 - Flags / Attributes
 
-### Format output
-```text
-Type: EfiConventionalMemory
-Start: 0x0000000000100000
-Pages: 512
-Size : 2 MB
-```
-### Translate Memory Types
+
+## Translate Memory Types
 - `EfiReservedMemoryType`
 - `EfiLoaderCode`
 - `EfiLoaderData`
@@ -75,10 +80,14 @@ Size : 2 MB
 - `EfiMemoryMappedIOPortSpace`
 - `EfiPalCode` (rare)
 
-### Optional
-- Sorting/Grouping of related areas
-- colored output
-- get sizes: size = pages * 4096
+Type | Meaning | Typical Use
+---
+EfiConventionalMemory | Free RAM | OS allocation
+EfiLoaderCode | Loader | code	Boot loader
+EfiBootServicesCode | Firmware code | UEFI services
+EfiRuntimeServicesData | Runtime data | Variables, clocks
+EfiMemoryMappedIO | MMIO | Devices
+
 
 ## TODO
 Concepts to explain:
@@ -93,44 +102,6 @@ Concepts to explain:
 
 -> Application-Site of Memory Map Viewer, Findings to GetMemoryMap, ExitBootServices-Site
 
-## 1. Warum Firmware eine Memory Map braucht
-RAM ist nicht einfach "frei"
-Firmware reserviert Bereiche
-ACPI braucht Speicher
-MMIO ist kein normaler RAM
 
-## 2. Wie UEFI Speicher klassifiziert
-
-Mit Tabelle:
-
-Type | Meaning | Typical Use
----
-EfiConventionalMemory | Free RAM | OS allocation
-EfiLoaderCode | Loader | code	Boot loader
-EfiBootServicesCode | Firmware code | UEFI services
-EfiRuntimeServicesData | Runtime data | Variables, clocks
-EfiMemoryMappedIO | MMIO | Devices
-
-## 3. Layout einer EFI_MEMORY_DESCRIPTOR
-
-Diagram:
-
-Type
-PhysicalStart
-VirtualStart
-NumberOfPages
-Attribute
-
-## 4. Warum DescriptorSize existiert
-
-Erklären:
-
-Firmware darf Struktur erweitern
-sizeof(EFI_MEMORY_DESCRIPTOR) ist nicht die Wahrheit
-Deshalb Byte-weise iterieren
-
-## 5. Der Zwei-Call-Mechanismus
-
-
-## 6. Connection to ExitBootServices()
+## Connection to ExitBootServices()
 
